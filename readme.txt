@@ -1,9 +1,9 @@
 === BuddyPress Extended Friendship Request ===
-Contributors: sbrajesh
+Contributors: sbrajesh,anusharma
 Tags: buddypress, social, friends, friendship
 Requires at least: BuddyPress 1.6
-Tested up to: BuddyPress 1.6.1
-Stable tag: 1.0
+Tested up to: BuddyPress 1.7.2
+Stable tag: 1.0.1
 License: GPLv2 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,7 +39,8 @@ No, It needs you to have BuddyPress Installed and activated
 2. This shows successful friendship request screenshot-2.png
 
 == Changelog ==
-
+= 1.0.1 =
+ * Added Support for localization, thanks to the efforts of Anu Sharma(@anusharma).
 = 1.0 =
 * Initial release for BuddyPress 1.6+
 

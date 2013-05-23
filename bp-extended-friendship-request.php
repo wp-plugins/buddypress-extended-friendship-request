@@ -1,9 +1,10 @@
 <?php
 /**
  * Plugin Name: BuddyPress Extended Friendship Request 
- * Version: 1.0
+ * Version: 1.0.1
  * Plugin URI: http://buddydev.com/plugins/bp-extended-friendship-request/
  * Author: Brajesh Singh
+ * Contributor: Anu Sharma
  * License: GPL
  * Description: Allows users to send a personalized message with the friendship request
  * 
@@ -29,6 +30,9 @@ class BPExtFriendRequestHelper{
         
         add_action('bp_friend_requests_item',array($this,'show_message'));
         
+         //load text domain
+        add_action ( 'bp_loaded', array($this,'load_textdomain'), 2 );
+        
     }
     
     public static function get_instance(){
@@ -42,6 +46,20 @@ class BPExtFriendRequestHelper{
      * Load plugin textdomain for translation
      */
     function load_textdomain(){
+         $locale = apply_filters( 'bp-extended-friendship-request_get_locale', get_locale() );
+        
+      
+	// if load .mo file
+	if ( !empty( $locale ) ) {
+		$mofile_default = sprintf( '%slanguages/%s.mo', plugin_dir_path(__FILE__), $locale );
+              
+		$mofile = apply_filters( 'bp-ext_fr_load_textdomain_mofile', $mofile_default );
+		
+                if (is_readable( $mofile ) ) {
+                    // make sure file exists, and load it
+			load_textdomain( 'bp-ext-friends-request', $mofile );
+		}
+	}
        
     }
     /**
