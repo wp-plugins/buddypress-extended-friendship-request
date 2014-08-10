@@ -2,8 +2,8 @@
 Contributors: sbrajesh, anusharma, buddydev
 Tags: buddypress, social, friends, friendship
 Requires at least: BuddyPress 1.6
-Tested up to: BuddyPress 2.0.1
-Stable tag: 1.0.3
+Tested up to: BuddyPress 2.0.2
+Stable tag: 1.0.4
 License: GPLv2 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,9 +39,13 @@ No, It needs you to have BuddyPress Installed and activated
 
 == Changelog ==
 
+= 1.0.4 =
+ * Fixes translation problems on ajax responses. Now the translations will work fine.
+ * Removes javascript debug info in the console
+ 
 = 1.0.3 =
  * Fix a notice message when request was removed
- * Adds asic support for mobile devices
+ * Adds basic support for mobile devices
 
 = 1.0.2 =
  * Fix a possible security issue with displaying message
