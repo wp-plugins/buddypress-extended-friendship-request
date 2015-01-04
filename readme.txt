@@ -2,8 +2,8 @@
 Contributors: sbrajesh, anusharma, buddydev
 Tags: buddypress, social, friends, friendship
 Requires at least: BuddyPress 1.6
-Tested up to: BuddyPress 2.0.2
-Stable tag: 1.0.4
+Tested up to: BuddyPress 2.1.1
+Stable tag: 1.0.5
 License: GPLv2 
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,11 @@ No, It needs you to have BuddyPress Installed and activated
 2. This shows successful friendship request screenshot-2.png
 
 == Changelog ==
+
+= 1.0.5 =
+ * Fixed Fatal error: Cannot unset string offsets in bp-extended-friendship-request.php
+ * Removes javascript debug info in the console
+ 
 
 = 1.0.4 =
  * Fixes translation problems on ajax responses. Now the translations will work fine.
