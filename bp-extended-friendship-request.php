@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: BuddyPress Extended Friendship Request 
- * Version: 1.0.6
+ * Version: 1.0.7
  * Plugin URI: http://buddydev.com/plugins/bp-extended-friendship-request/
  * Author: Brajesh Singh
  * Contributor: Anu Sharma
@@ -10,38 +10,35 @@
  * 
  */
 
-class BPExtFriendRequestHelper{
+class BPExtFriendRequestHelper {
     
     private static $instance;
     
-    private function __construct(){
+    private function __construct() {
         
-         add_action ( 'bp_loaded', array( $this, 'load_textdomain' ), 2 );
-         add_filter( 'bp_get_add_friend_button', array( $this, 'filter_button' ) );
+		add_action ( 'bp_loaded', array( $this, 'load_textdomain' ), 2 );
+		add_filter( 'bp_get_add_friend_button', array( $this, 'filter_button' ) );
+
+		add_action( 'bp_friend_requests_item', array( $this, 'show_message' ) );
+
+		if( is_admin() || is_network_admin() )
+		   return;//we don't want anything in backend
+		 //load css
+		add_action( 'bp_enqueue_scripts', array( $this, 'load_css' ) );
+		//load js
+		add_action( 'bp_enqueue_scripts', array( $this,'load_js' ) );
+
+		//load popup template
+		add_action( 'wp_footer',  array( $this, 'load_template' ) );
         
-         add_action( 'bp_friend_requests_item', array( $this, 'show_message' ) );
-        
-		 if( is_admin() || is_network_admin() )
-            return;//we don't want anything in backend
-        //load css
-        add_action( 'wp_print_styles', array( $this, 'load_css' ) );
-        //load js
-        add_action( 'wp_print_scripts', array( $this,'load_js' ) );
-        
-        //load popup template
-        add_action( 'wp_footer',  array( $this, 'load_template' ) );
-       
-        
-      
-        
-         //load text domain
+        //load text domain
        
         
     }
     
-    public static function get_instance(){
+    public static function get_instance() {
     
-        if( !isset ( self::$instance ) )
+        if( ! isset ( self::$instance ) )
                 self::$instance = new self();
         
         return self::$instance;
@@ -49,12 +46,12 @@ class BPExtFriendRequestHelper{
     /**
      * Load plugin textdomain for translation
      */
-    public function load_textdomain(){
+    public function load_textdomain() {
         
         $locale = apply_filters( 'bp-extended-friendship-request_get_locale', get_locale() );
               
         // if load .mo file
-        if ( !empty( $locale ) ) {
+        if ( ! empty( $locale ) ) {
             
             $mofile_default = sprintf( '%slanguages/%s.mo', plugin_dir_path( __FILE__ ), $locale );
 
@@ -73,10 +70,12 @@ class BPExtFriendRequestHelper{
      * @param array $btn arraof of button fields
      * @return type array $button
      */
-    public function filter_button( $btn ){
+    public function filter_button( $btn ) {
         
-        $wrapper_class = $btn['wrapper_class'];
-        $wrapper_class = str_replace( 'friendship-button', 'friendship-button-ext', $wrapper_class );
+        $wrapper_class = isset( $btn['wrapper_class'] ) ? $btn['wrapper_class'] : '';
+		
+		if( $wrapper_class )
+			$wrapper_class = str_replace( 'friendship-button', 'friendship-button-ext', $wrapper_class );
         
         $btn['wrapper_class'] = $wrapper_class;
         
@@ -123,19 +122,19 @@ class BPExtFriendRequestHelper{
     /**
      * Load required Js
      */
-    public function load_js(){
+    public function load_js() {
         //do not load js if user is not logged in
-        if( !is_user_logged_in() || is_admin() )
+        if( ! is_user_logged_in() || is_admin() )
             return;
         
-       wp_enqueue_script( 'add-friend',  plugin_dir_url( __FILE__ ) . '_inc/js/bp-ext-friend.js', array( 'jquery' ) );
+       wp_enqueue_script( 'bp-extended-add-friend',  plugin_dir_url( __FILE__ ) . '_inc/js/bp-ext-friend.js', array( 'jquery' ) );
        
     }
     
     //load css
-    public function load_css(){
+    public function load_css() {
         //do not load css when user is not logged in
-        if( !is_user_logged_in() || is_admin() )
+        if( ! is_user_logged_in() || is_admin() )
             return;
         
         wp_register_style( 'add-friend-css',  plugin_dir_url( __FILE__ ) . '_inc/css/bp-ext-friend.css' );
@@ -150,8 +149,9 @@ class BPExtFriendRequestHelper{
      * But I liked the look, so used the css/html for the popup from them
      * 
      */
-    public function load_template(){
-        if( !is_user_logged_in() )
+    public function load_template() {
+		
+        if( ! is_user_logged_in() )
             return;
         ?>
         <div class="bpdev-popover top">
@@ -182,11 +182,11 @@ BPExtFriendRequestHelper::get_instance();
 /**
  * This class handles various ajax/non ajax actions related to the friendship
  */
-class BPExtFriendShipActions{
+class BPExtFriendShipActions {
     
     private static $instance;
     
-    private function __construct(){
+    private function __construct() {
        
         
         //handle add friend
@@ -205,20 +205,21 @@ class BPExtFriendShipActions{
          
     }
     
-    public static function get_instance(){
+    public static function get_instance() {
     
-        if( !isset ( self::$instance ) )
+        if( ! isset ( self::$instance ) )
                 self::$instance = new self();
         
         return self::$instance;
     }
     
-    public function clean_message( $friendship_id, $initiator_user_id, $user_id ){
+    public function clean_message( $friendship_id, $initiator_user_id, $user_id ) {
         
-        bp_ext_friend_request_delete_message($user_id, $friendship_id);
+        bp_ext_friend_request_delete_message( $user_id, $friendship_id );
         
     }
-    public function delete_message_on_withdraw( $friendship_id, $friendship ){
+	
+    public function delete_message_on_withdraw( $friendship_id, $friendship ) {
        // $friendship_id=$info[0];
         //$friendship=$info[1];
         bp_ext_friend_request_delete_message( $friendship->friend_user_id, $friendship_id );
@@ -230,18 +231,18 @@ class BPExtFriendShipActions{
      * @return type 
      */
     
-    public function add_friend(){
+    public function add_friend() {
         
         //handle the request and add friend
         if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
             return;
             
         //we will use to echo the json data
-        $messages=array();
+        $messages = array();
 	
         //validate nonce
         
-        if( !check_ajax_referer( 'friends_add_friend' ) ){
+        if( ! check_ajax_referer( 'friends_add_friend' ) ) {
 
             $messages = array( 'message' => __( '<p>There was a problem, please try later!</p>', 'bp-ext-friends-request' ) );
             
@@ -251,12 +252,12 @@ class BPExtFriendShipActions{
         } 
                 
        
-       if ( 'not_friends' == BP_Friends_Friendship::check_is_friend( bp_loggedin_user_id(), $_POST['fid'] ) ) {
+		if ( 'not_friends' == BP_Friends_Friendship::check_is_friend( bp_loggedin_user_id(), $_POST['fid'] ) ) {
                  
             //let us add the user 
             
 
-            if ( ! friends_add_friend( bp_loggedin_user_id(), $_POST['fid'] ) ){
+            if ( ! friends_add_friend( bp_loggedin_user_id(), $_POST['fid'] ) ) {
                 
                 $messages['message']= __( '<p>Friendship could not be requested.</p>', 'bp-ext-friends-request' );
 
@@ -277,7 +278,7 @@ class BPExtFriendShipActions{
     }
     
     //since theme won't handle it, just a copy to make the theme handle it
-    public function remove_friend(){
+    public function remove_friend() {
             // Bail if not a POST action
         if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
             return;
@@ -329,7 +330,7 @@ BPExtFriendShipActions::get_instance();
  * @param type $friendship_id
  * @return type 
  */
-function bp_ext_friend_request_get_message( $user_id, $friendship_id ){
+function bp_ext_friend_request_get_message( $user_id, $friendship_id ) {
     
     $key = bp_ext_friend_request_get_message_key();
     
@@ -347,7 +348,7 @@ function bp_ext_friend_request_get_message( $user_id, $friendship_id ){
  * @param type $friendship_id
  * @param type $message 
  */
-function bp_ext_friend_request_update_message( $user_id, $friendship_id, $message ){
+function bp_ext_friend_request_update_message( $user_id, $friendship_id, $message ) {
     
     $key = bp_ext_friend_request_get_message_key();
     
@@ -365,7 +366,7 @@ function bp_ext_friend_request_update_message( $user_id, $friendship_id, $messag
  * @param type $user_id
  * @param type $friendship_id 
  */
-function bp_ext_friend_request_delete_message( $user_id, $friendship_id ){
+function bp_ext_friend_request_delete_message( $user_id, $friendship_id ) {
     
     $key = bp_ext_friend_request_get_message_key();
     
@@ -385,7 +386,7 @@ function bp_ext_friend_request_delete_message( $user_id, $friendship_id ){
  * I just wanted to avoid hardcoding it multiple times.
  * @return string key name
  */
-function bp_ext_friend_request_get_message_key(){
+function bp_ext_friend_request_get_message_key() {
     
     return 'friendship_request_messages';
     
